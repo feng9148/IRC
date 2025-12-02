@@ -1,0 +1,5 @@
+{
+  "name": "Copy of Armbian WebIRC",
+  "description": "A lightweight, multi-server IRC client designed for Armbian and Docker environments via WebSockets.",
+  "requestFramePermissions": []
+}

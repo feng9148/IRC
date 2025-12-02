@@ -1,5 +1,3 @@
-
-
 export interface ParsedIrcLine {
   prefix: string;
   command: string;
@@ -70,31 +68,19 @@ export class IrcParser {
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
 
-    // Replace IRC Codes
-    // \x02 Bold
-    // \x1D Italic
-    // \x1F Underline
-    // \x0F Reset (Simple implementation: close all tags. Real parser needs a stack)
-    
-    // Simple toggle approach (not perfect but lightweight)
+    let result = '';
     let boldOpen = false;
     let italicOpen = false;
     let underlineOpen = false;
 
-    // Split by special chars
-    const chars = escaped.split('');
-    let result = '';
-
-    for (let i = 0; i < chars.length; i++) {
-        // We use the original text index to find control codes, but map to escaped char
-        // Note: Escaping doesn't change the index of control codes relative to each other if we iterate the escaped string but control codes are removed? 
-        // Better: Iterate original, if control code, handle tag. If char, append escaped char.
-        
-        // However, escaping changes string length (& -> &amp;). 
-        // Correct approach: Split by control codes or iterate chars and escape on the fly if not control code.
-        // Re-implementing for safety:
-    }
+    // Iterate through chars to handle codes
+    // \x02 Bold, \x1D Italic, \x1F Underline, \x0F Reset
     
+    // Note: We iterate the escaped string, but careful with entities.
+    // A safer way for this simple implementation is to tokenize. 
+    // However, to keep it simple and performant:
+    
+    // We will rebuild the logic to parse original string, escape normal chars, and handle codes.
     result = '';
     for (let i = 0; i < text.length; i++) {
         const c = text[i];

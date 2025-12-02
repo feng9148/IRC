@@ -1,5 +1,3 @@
-
-
 export enum MessageType {
   SYSTEM = 'SYSTEM',
   PRIVMSG = 'PRIVMSG',

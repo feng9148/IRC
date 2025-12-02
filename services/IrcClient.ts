@@ -1,5 +1,3 @@
-
-
 import { IrcParser, ParsedIrcLine } from './ircParser';
 import { IrcServerConfig } from '../types';
 

@@ -1,0 +1,8 @@
+version: '3'
+services:
+  webirc:
+    build: .
+    container_name: armbian-webirc
+    ports:
+      - "8097:80"
+    restart: always

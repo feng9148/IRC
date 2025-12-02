@@ -1,5 +1,3 @@
-
-
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { IrcClient } from './services/IrcClient';
 import { IrcParser } from './services/ircParser';
@@ -9,11 +7,6 @@ import { HashIcon, ServerIcon, SendIcon, UserIcon, PlusIcon, SettingsIcon, XIcon
 // URL Parsing and Formatting
 const formatContent = (text: string) => {
   const htmlContent = IrcParser.parseContentToHtml(text);
-  
-  // Linkify - We need to be careful not to double escape or break HTML tags
-  // For simplicity in this React hybrid, we will assume URLs don't overlap with tags for now
-  // or simple split. A robust solution needs a full tokenizers.
-  // We will simply set dangerouslySetInnerHTML with the parsed IRC HTML
   return <span dangerouslySetInnerHTML={{ __html: htmlContent }} />;
 };
 
@@ -106,9 +99,6 @@ export default function App() {
                   sendNotification(`被提到了: ${message.from}`, message.content);
               } else if (channel.type === 'query') {
                   sendNotification(`私信: ${message.from}`, message.content);
-              } else {
-                  // Optional: Notify on all channel messages? Maybe too noisy.
-                  // sendNotification(`新消息 ${channelName}`, `${message.from}: ${message.content}`);
               }
           }
       }
@@ -228,8 +218,7 @@ export default function App() {
             if (!ch) return s;
             
             if (kickedNick === client.currentNick) {
-                // I was kicked. Mark as not joined but keep history? Or remove?
-                // For now, keep history but show system message
+                // I was kicked.
                 return s; 
             }
             
@@ -246,11 +235,10 @@ export default function App() {
          }));
     });
 
-    // Mode Handling (Update User List prefixes)
+    // Mode Handling
     client.on('mode', ({ channel, actor, modes, args }) => {
         addLog(config.id, channel, sysMsg(`${actor} 设置模式: ${modes} ${args.join(' ')}`, MessageType.MODE));
         
-        // Simple user prefix update logic for +o +v
         if (args.length > 0) {
             setServers(prev => prev.map(s => {
                 if (s.config.id !== config.id) return s;
@@ -258,7 +246,7 @@ export default function App() {
                 if (!ch) return s;
 
                 const targetNick = args[0];
-                const modeChar = modes; // Simplified. Real parsing handles +o-v etc complex strings
+                const modeChar = modes;
                 
                 let newUsers = [...ch.users];
                 const idx = newUsers.findIndex(u => u.replace(/^[@+]/, '') === targetNick);
@@ -266,7 +254,7 @@ export default function App() {
                     let user = newUsers[idx].replace(/^[@+]/, '');
                     if (modeChar.includes('+o')) user = '@' + user;
                     else if (modeChar.includes('+v') && !user.startsWith('@')) user = '+' + user;
-                    else if (modeChar.includes('-o')) user = user.replace('@', ''); // Fallback needed to check if still voice
+                    else if (modeChar.includes('-o')) user = user.replace('@', '');
                     else if (modeChar.includes('-v')) user = user.replace('+', '');
                     newUsers[idx] = user;
                 }
@@ -424,9 +412,7 @@ export default function App() {
           case 'DEVOICE': client.devoice(activeChannelName, target); break;
           case 'KICK': client.kick(activeChannelName, target, 'Bye'); break;
           case 'BAN': client.ban(activeChannelName, target); break;
-          case 'QUERY':
-               // Open DM logic handled by setActiveChannel usually, just switch or create
-               break;
+          case 'QUERY': setActiveChannelName(target); break; 
       }
       setUserContextMenu(null);
   };
